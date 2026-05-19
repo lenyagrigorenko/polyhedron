@@ -1,4 +1,4 @@
-from math import pi
+from math import pi, sqrt, atan2
 from functools import reduce
 from operator import add
 from common.r3 import R3
@@ -42,6 +42,23 @@ class Edge:
         self.beg, self.fin = beg, fin
         # Список «просветов»
         self.gaps = [Segment(Edge.SBEG, Edge.SFIN)]
+
+    def angle(self):
+        d = self.fin - self.beg
+        h = sqrt(d.x ** 2 + d.y ** 2)
+        return atan2(abs(d.z), h)
+
+    def shadows(self):
+        res = []
+        pts = [Edge.SBEG]
+        for g in self.gaps:
+            pts += [g.beg, g.fin]
+        pts.append(Edge.SFIN)
+        for i in range(0, len(pts), 2):
+            s = Segment(pts[i], pts[i + 1])
+            if not s.is_degenerate():
+                res.append(s)
+        return res
 
     # Учёт тени от одной грани
     def shadow(self, facet):
@@ -158,6 +175,22 @@ class Polyedr:
                         self.edges.append(Edge(vertexes[n - 1], vertexes[n]))
                     # задание самой грани
                     self.facets.append(Facet(vertexes))
+
+    def characteristic(self):
+        total = 0.0
+        for e in self.edges:
+            for f in self.facets:
+                e.shadow(f)
+            shds = e.shadows()
+            if not shds or not e.gaps or e.angle() > pi / 7:
+                continue
+            for s in shds:
+                mid = e.r3((s.beg + s.fin) / 2)
+                if abs(mid.x - 2) < 1:
+                    p = e.r3(s.beg)
+                    q = e.r3(s.fin)
+                    total += sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2)
+        return total
 
     # Метод изображения полиэдра
     def draw(self, tk):  # pragma: no cover
