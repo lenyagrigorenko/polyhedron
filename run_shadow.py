@@ -13,7 +13,7 @@ try:
         start_time = time()
         p = Polyedr(f"data/{name}.geom")
         print(f"Характеристика полиэдра '{name}': {p.characteristic()}")
-        Polyedr(f"data/{name}.geom").draw(tk)
+        p.draw(tk)
         delta_time = time() - start_time
         print(f"Изображение полиэдра '{name}' заняло {delta_time} сек.")
         input("Hit 'Return' to continue -> ")
