@@ -101,3 +101,22 @@ class TestCharacteristic(unittest.TestCase):
                    new=mock_open(read_data=content)):
             p = Polyedr('test')
         self.assertTrue(isclose(p.characteristic(), 12.0, abs_tol=1e-6))
+
+    def test_scale_invariant(self):
+        content = """\
+200.0\t45.0\t45.0\t30.0
+8\t2\t8
+-5.0\t-5.0\t0.0
+5.0\t-5.0\t0.0
+5.0\t5.0\t0.0
+-5.0\t5.0\t0.0
+-1.0\t-0.5\t-0.01
+7.0\t-0.5\t-0.01
+7.0\t0.5\t-0.01
+-1.0\t0.5\t-0.01
+4\t1    2    3    4
+4\t5    6    7    8"""
+        with patch('shadow.polyedr.open',
+                   new=mock_open(read_data=content)):
+            p = Polyedr('test')
+        self.assertTrue(isclose(p.characteristic(), 12.0, abs_tol=1e-6))
